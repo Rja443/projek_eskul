@@ -2,66 +2,258 @@
 
 @section('content')
 
-<h2>Tambah Barang</h2>
+<style>
+    /* Tema Soft Blue & Gentle Gray (sama seperti halaman daftar dan edit) */
+    body {
+        background: linear-gradient(135deg, #f5f7fa 0%, #e9eef5 100%);
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
 
-@if($errors->any())
-<ul>
-    @foreach($errors->all() as $error)
-        <li>{{ $error }}</li>
-    @endforeach
-</ul>
-@endif
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
 
-<form action="{{ route('products.store') }}"
-      method="POST">
+    /* Kartu utama */
+    .main-card {
+        background: white;
+        border-radius: 1.5rem;
+        box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.02);
+        overflow: hidden;
+    }
 
-    @csrf
+    /* Header */
+    .page-header {
+        background: linear-gradient(135deg, #1e2a3a 0%, #0f1724 100%);
+        padding: 1.5rem 2rem;
+        border-bottom: 3px solid #3b82f6;
+    }
 
-    <label>Nama Barang</label>
-    <br>
+    .page-header h2 {
+        color: white;
+        font-size: 1.85rem;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
 
-    <input type="text"
-           name="name">
+    .page-header h2::before {
+        content: "➕";
+        font-size: 1.8rem;
+    }
 
-    <br><br>
+    /* Alert error */
+    .alert-error {
+        background: #fef2f2;
+        border-left: 4px solid #ef4444;
+        padding: 1rem 1.25rem;
+        margin: 1.5rem 2rem 0 2rem;
+        border-radius: 0.75rem;
+    }
 
-    <label>Kategori</label>
-    <br>
+    .alert-error ul {
+        margin: 0;
+        padding-left: 1.25rem;
+        color: #991b1b;
+        font-size: 0.85rem;
+    }
 
-    <select name="category_id">
+    .alert-error li {
+        margin: 0.25rem 0;
+    }
 
-        @foreach($categories as $category)
+    /* Form container */
+    .form-container {
+        padding: 2rem;
+    }
 
-        <option value="{{ $category->id }}">
-            {{ $category->name }}
-        </option>
+    /* Form group */
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
 
-        @endforeach
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #475569;
+        margin-bottom: 0.5rem;
+    }
 
-    </select>
+    .form-group label::before {
+        content: "▸";
+        color: #3b82f6;
+        margin-right: 0.4rem;
+        font-size: 0.7rem;
+    }
 
-    <br><br>
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 0.75rem;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+        background: #fafcff;
+    }
 
-    <label>Harga</label>
-    <br>
+    .form-control:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        background: white;
+    }
 
-    <input type="number"
-           name="price">
+    select.form-control {
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+        background-position: right 1rem center;
+        background-repeat: no-repeat;
+        background-size: 1.2em;
+    }
 
-    <br><br>
+    /* Tombol simpan */
+    .btn-simpan {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        border: none;
+        padding: 0.85rem 2rem;
+        border-radius: 2rem;
+        font-weight: 700;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        width: 100%;
+        margin-top: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
 
-    <label>Stok</label>
-    <br>
+    .btn-simpan:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+    }
 
-    <input type="number"
-           name="stock">
+    .btn-simpan:active {
+        transform: translateY(0);
+    }
 
-    <br><br>
+    /* Link kembali */
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        margin-bottom: 1rem;
+        color: #3b82f6;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.85rem;
+        transition: 0.2s;
+    }
 
-    <button type="submit">
-        Simpan
-    </button>
+    .back-link:hover {
+        color: #1e40af;
+        gap: 0.6rem;
+    }
 
-</form>
+    /* Responsive */
+    @media (max-width: 640px) {
+        .form-container {
+            padding: 1.5rem;
+        }
+        .page-header {
+            padding: 1rem 1.5rem;
+        }
+        .page-header h2 {
+            font-size: 1.4rem;
+        }
+    }
+</style>
+
+<div class="container">
+    <div class="main-card">
+        <!-- Header -->
+        <div class="page-header">
+            <h2>Tambah Barang</h2>
+        </div>
+
+        <!-- Error Messages -->
+        @if($errors->any())
+        <div class="alert-error">
+            <ul>
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+        @endif
+
+        <!-- Form -->
+        <div class="form-container">
+            <a href="{{ route('products.index') }}" class="back-link">
+                ← Kembali ke Daftar Barang
+            </a>
+
+            <form action="{{ route('products.store') }}"
+                  method="POST">
+
+                @csrf
+
+                <div class="form-group">
+                    <label>Nama Barang</label>
+                    <input type="text"
+                           name="name"
+                           class="form-control"
+                           placeholder="Contoh: Laptop Gaming"
+                           value="{{ old('name') }}">
+                </div>
+
+                <div class="form-group">
+                    <label>Kategori</label>
+                    <select name="category_id" class="form-control">
+                        @foreach($categories as $category)
+                        <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
+                            {{ $category->name }}
+                        </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Harga (Rp)</label>
+                    <input type="number"
+                           name="price"
+                           class="form-control"
+                           placeholder="Contoh: 5000000"
+                           min="0"
+                           value="{{ old('price') }}">
+                </div>
+
+                <div class="form-group">
+                    <label>Stok</label>
+                    <input type="number"
+                           name="stock"
+                           class="form-control"
+                           placeholder="Contoh: 10"
+                           min="0"
+                           value="{{ old('stock') }}">
+                </div>
+
+                <button type="submit" class="btn-simpan">
+                    💾 Simpan Barang
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
 
 @endsection
